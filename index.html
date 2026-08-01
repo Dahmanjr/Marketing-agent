@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AdGen AI — Product Ad Maker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:   #4ade80;
+      --blue:    #60a5fa;
+      --purple:  #a78bfa;
+      --green-d: #16a34a;
+      --blue-d:  #2563eb;
+      --bg:      #0a0a0f;
+      --surface: rgba(255,255,255,0.04);
+      --border:  rgba(255,255,255,0.08);
+      --text:    #e5e7eb;
+      --muted:   #6b7280;
+      --label:   #9ca3af;
+    }
+
+    html, body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0a0a0f 0%, #111827 50%, #0d1117 100%);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+    }
+
+    body { display: flex; flex-direction: column; align-items: center; padding: 2.5rem 1rem 4rem; }
+
+    /* ── Hero ── */
+    .hero { text-align: center; margin-bottom: 2.5rem; }
+
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--green), var(--blue), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+      margin-bottom: 0.4rem;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 300;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ── Layout ── */
+    .container { width: 100%; max-width: 760px; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      backdrop-filter: blur(12px);
+    }
+
+    .card-eyebrow {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 0.4rem;
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--green-d), var(--blue-d));
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* ── API Key card ── */
+    .api-card {
+      background: rgba(22,163,74,0.06);
+      border: 1px solid rgba(74,222,128,0.2);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── Form elements ── */
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--label);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.03em;
+    }
+
+    input[type="text"], input[type="password"], select, textarea {
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.65rem 0.9rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(74,222,128,0.4);
+    }
+
+    select option { background: #111827; }
+
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* ── Slider ── */
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: linear-gradient(to right, var(--green-d), var(--blue-d));
+      outline: none;
+      border: none;
+      padding: 0;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--green);
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(74,222,128,0.5);
+    }
+
+    .slider-val {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--green);
+      min-width: 3.5rem;
+      text-align: right;
+    }
+
+    /* ── File upload zone ── */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 2rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: rgba(74,222,128,0.5);
+      background: rgba(74,222,128,0.04);
+    }
+
+    .upload-zone input[type="file"] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer;
+      width: 100%; height: 100%;
+      border: none; padding: 0;
+    }
+
+    .upload-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+
+    .upload-zone p {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .upload-zone strong { color: var(--label); }
+
+    /* ── Image preview ── */
+    #imagePreview {
+      display: none;
+      margin-top: 1rem;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    #imagePreview img {
+      width: 100%; display: block;
+      max-height: 280px;
+      object-fit: contain;
+      background: rgba(0,0,0,0.3);
+    }
+
+    .img-meta {
+      padding: 0.6rem 0.9rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      background: rgba(0,0,0,0.2);
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .img-meta span { color: var(--green); font-weight: 600; }
+
+    /* ── Grid row ── */
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    @media (max-width: 500px) { .row-2 { grid-template-columns: 1fr; } }
+
+    /* ── Divider ── */
+    hr { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+
+    /* ── Generate button ── */
+    #generateBtn {
+      width: 100%;
+      padding: 0.9rem 1.5rem;
+      background: linear-gradient(135deg, var(--green-d) 0%, var(--blue-d) 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    #generateBtn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(22,163,74,0.4);
+    }
+
+    #generateBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ── Progress / Status ── */
+    #statusSection { display: none; margin-bottom: 1.25rem; }
+
+    .status-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+    }
+
+    .status-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(74,222,128,0.3);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .log-lines { list-style: none; }
+
+    .log-lines li {
+      font-size: 0.83rem;
+      color: var(--muted);
+      padding: 0.2rem 0;
+    }
+
+    .log-lines li.done { color: var(--green); }
+
+    /* ── Progress bar ── */
+    .progress-wrap {
+      background: rgba(255,255,255,0.06);
+      border-radius: 4px;
+      height: 6px;
+      margin: 0.75rem 0;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green-d), var(--blue-d));
+      border-radius: 4px;
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+
+    /* ── Results ── */
+    #resultsSection { display: none; }
+
+    .result-header {
+      color: var(--green);
+      font-weight: 700;
+      font-size: 1.05rem;
+      margin-bottom: 1rem;
+    }
+
+    .script-box {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(74,222,128,0.15);
+      border-radius: 12px;
+      padding: 1.25rem;
+      color: #d1d5db;
+      font-size: 0.86rem;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      font-family: 'Inter', sans-serif;
+      margin-top: 0.75rem;
+    }
+
+    details summary {
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 600;
+      padding: 0.5rem 0;
+      user-select: none;
+      list-style: none;
+    }
+
+    details summary::before { content: "▶  "; font-size: 0.7rem; }
+    details[open] summary::before { content: "▼  "; }
+
+    /* ── Frame gallery ── */
+    .gallery-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .gallery-item { position: relative; }
+
+    .gallery-item img {
+      width: 100%;
+      border-radius: 10px;
+      display: block;
+      border: 1px solid var(--border);
+    }
+
+    .gallery-item figcaption {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 0.35rem;
+    }
+
+    /* ── Video player ── */
+    video {
+      width: 100%;
+      border-radius: 12px;
+      background: #000;
+      display: block;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── Download button ── */
+    .download-btn {
+      display: block;
+      width: 100%;
+      padding: 0.8rem;
+      text-align: center;
+      background: linear-gradient(135deg, var(--green-d), var(--blue-d));
+      color: white;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(22,163,74,0.4);
+    }
+
+    /* ── Meta panel ── */
+    .meta-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      font-size: 0.82rem;
+      line-height: 2.2;
+    }
+
+    .meta-panel .meta-eyebrow {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 0.6rem;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 3rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-align: center;
+    }
+
+    /* ── Info hint ── */
+    .hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 0.35rem;
+    }
+
+    .error-box {
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 10px;
+      padding: 0.9rem 1.1rem;
+      color: #fca5a5;
+      font-size: 0.86rem;
+      margin-top: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>🎬 AdGen AI</h1>
+    <p>Turn any product photo into a polished advertisement video · Powered by Gemini</p>
+  </div>
+
+  <div class="container">
+
+
+
+    <!-- Step 1: Upload -->
+    <div class="card">
+      <div class="card-eyebrow">Step 1</div>
+      <div class="card-title"><span class="badge">1</span> Upload your product photo</div>
+
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.webp" />
+        <div class="upload-icon">📦</div>
+        <p><strong>Click to browse</strong> or drag & drop here</p>
+        <p style="margin-top:0.25rem;font-size:0.78rem;">JPG · PNG · WEBP</p>
+      </div>
+
+      <div id="imagePreview">
+        <img id="previewImg" src="" alt="Product preview" />
+        <div class="img-meta">
+          <span>✓ Image ready</span>
+          <span id="fileName"></span>
+          <span id="fileSize"></span>
+        </div>
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- Step 2: Settings -->
+    <div class="card">
+      <div class="card-eyebrow">Step 2</div>
+      <div class="card-title"><span class="badge">2</span> Configure your ad</div>
+
+      <div class="row-2" style="margin-bottom:1rem;">
+        <div>
+          <label for="toneSelect">Ad Tone</label>
+          <select id="toneSelect">
+            <option>Luxury & Premium</option>
+            <option>Fun & Energetic</option>
+            <option>Trustworthy & Professional</option>
+            <option>Emotional & Storytelling</option>
+          </select>
+        </div>
+        <div>
+          <label>Video Duration — <span id="durationLabel">15s</span></label>
+          <div class="slider-row">
+            <input type="range" id="durationSlider" min="9" max="30" step="3" value="15" />
+            <span class="slider-val" id="durationVal">15s</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label for="extraInfo">Extra context <em style="font-weight:300;color:var(--muted)">(optional)</em></label>
+        <textarea id="extraInfo" placeholder="e.g. 'Handmade leather wallet for young professionals. Emphasize durability and style.'"></textarea>
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- Step 3: Generate -->
+    <div class="card">
+      <div class="card-eyebrow">Step 3</div>
+      <div class="card-title"><span class="badge">3</span> Generate your ad video</div>
+      <button id="generateBtn">⚡ Generate Advertisement Video</button>
+      <div id="errorBox" class="error-box" style="display:none;"></div>
+    </div>
+
+    <!-- Status -->
+    <div id="statusSection">
+      <div class="status-card">
+        <div class="status-title">
+          <span class="spinner" id="statusSpinner"></span>
+          <span id="statusTitle">Processing…</span>
+        </div>
+        <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+        <ul class="log-lines" id="logLines"></ul>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="resultsSection">
+      <div class="card">
+        <div class="result-header">🎉 Your advertisement is ready!</div>
+
+        <div class="row-2" style="align-items:start;">
+          <div>
+            <video id="videoPlayer" controls></video>
+            <a id="downloadLink" class="download-btn" download="ad.mp4">⬇️ Download Advertisement (.mp4)</a>
+          </div>
+          <div class="meta-panel" id="metaPanel"></div>
+        </div>
+
+        <hr style="margin:1.25rem 0;" />
+
+        <details id="scriptDetails">
+          <summary>📄 View Generated Ad Script</summary>
+          <div class="script-box" id="scriptBox"></div>
+        </details>
+      </div>
+
+      <div class="card">
+        <div class="gallery-label">Frame Gallery</div>
+        <div class="gallery" id="frameGallery"></div>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+
+  <footer>Powered by Gemini 2.0 Flash Vision · AdGen AI · FastAPI + Vanilla JS</footer>
+
+  <script>
+    // ── Config ─────────────────────────────────────────────────────────────────
+    // Change this to your FastAPI server URL if hosting remotely.
+    const API_BASE = "http://localhost:8000";
+
+    // ── DOM refs ───────────────────────────────────────────────────────────────
+    const fileInput      = document.getElementById("fileInput");
+    const uploadZone     = document.getElementById("uploadZone");
+    const imagePreview   = document.getElementById("imagePreview");
+    const previewImg     = document.getElementById("previewImg");
+    const fileName       = document.getElementById("fileName");
+    const fileSize       = document.getElementById("fileSize");
+    const toneSelect     = document.getElementById("toneSelect");
+    const durationSlider = document.getElementById("durationSlider");
+    const durationVal    = document.getElementById("durationVal");
+    const durationLabel  = document.getElementById("durationLabel");
+    const extraInfo      = document.getElementById("extraInfo");
+    const generateBtn    = document.getElementById("generateBtn");
+    const errorBox       = document.getElementById("errorBox");
+    const statusSection  = document.getElementById("statusSection");
+    const statusTitle    = document.getElementById("statusTitle");
+    const statusSpinner  = document.getElementById("statusSpinner");
+    const progressBar    = document.getElementById("progressBar");
+    const logLines       = document.getElementById("logLines");
+    const resultsSection = document.getElementById("resultsSection");
+    const videoPlayer    = document.getElementById("videoPlayer");
+    const downloadLink   = document.getElementById("downloadLink");
+    const metaPanel      = document.getElementById("metaPanel");
+    const scriptBox      = document.getElementById("scriptBox");
+    const frameGallery   = document.getElementById("frameGallery");
+
+    let selectedFile = null;
+
+    // ── Slider ─────────────────────────────────────────────────────────────────
+    durationSlider.addEventListener("input", () => {
+      const v = durationSlider.value + "s";
+      durationVal.textContent = v;
+      durationLabel.textContent = v;
+    });
+
+    // ── Drag & drop ────────────────────────────────────────────────────────────
+    uploadZone.addEventListener("dragover", e => { e.preventDefault(); uploadZone.classList.add("drag-over"); });
+    uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("drag-over"));
+    uploadZone.addEventListener("drop", e => {
+      e.preventDefault();
+      uploadZone.classList.remove("drag-over");
+      const f = e.dataTransfer.files[0];
+      if (f) handleFile(f);
+    });
+
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files[0]) handleFile(fileInput.files[0]);
+    });
+
+    function handleFile(f) {
+      selectedFile = f;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        previewImg.src = ev.target.result;
+        imagePreview.style.display = "block";
+        fileName.textContent = f.name;
+        fileSize.textContent = (f.size / 1024).toFixed(0) + " KB";
+      };
+      reader.readAsDataURL(f);
+    }
+
+    // ── Logging helpers ────────────────────────────────────────────────────────
+    function log(msg, done = false) {
+      const li = document.createElement("li");
+      li.textContent = (done ? "✅ " : "⟳  ") + msg;
+      if (done) li.classList.add("done");
+      logLines.appendChild(li);
+      li.scrollIntoView({ behavior: "smooth" });
+      return li;
+    }
+
+    function setProgress(pct) { progressBar.style.width = pct + "%"; }
+
+    function showError(msg) {
+      errorBox.textContent = "❌ " + msg;
+      errorBox.style.display = "block";
+    }
+
+    function clearError() { errorBox.style.display = "none"; }
+
+    // ── Generate ───────────────────────────────────────────────────────────────
+    generateBtn.addEventListener("click", async () => {
+      clearError();
+
+      if (!selectedFile) return showError("Please upload a product image first.");
+
+      // Reset UI
+      logLines.innerHTML = "";
+      setProgress(0);
+      resultsSection.style.display = "none";
+      statusSection.style.display = "block";
+      statusTitle.textContent = "🤖 Gemini is analyzing your product…";
+      statusSpinner.style.display = "inline-block";
+      generateBtn.disabled = true;
+
+      const l1 = log("Sending image to Gemini 2.0 Flash Vision…");
+      setProgress(10);
+
+      // Build form data
+      const form = new FormData();
+      form.append("image", selectedFile);
+      form.append("tone", toneSelect.value);
+      form.append("duration", durationSlider.value);
+      form.append("extra_info", extraInfo.value);
+
+      try {
+        const res = await fetch(`${API_BASE}/api/generate`, {
+          method: "POST",
+          body: form,
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ detail: "Unknown server error" }));
+          throw new Error(err.detail || res.statusText);
+        }
+
+        setProgress(40);
+        l1.textContent = "✅ Image sent — waiting for Gemini response…";
+        l1.classList.add("done");
+
+        const data = await res.json();
+        setProgress(70);
+
+        const script = data.script;
+        log(`Product detected: ${script.product_name}`, true);
+        log(`Generated ${script.frames.length} ad frames`, true);
+        log(`Tagline: "${script.tagline}"`, true);
+
+        statusTitle.textContent = "🎨 Rendering frames & encoding video…";
+        setProgress(85);
+
+        log("Frames rendered by backend", true);
+        log("Video encoded with ffmpeg", true);
+        setProgress(100);
+
+        statusTitle.textContent = "✅ Done!";
+        statusSpinner.style.display = "none";
+
+        // ── Render results ──
+        // Video
+        const videoBytes = atob(data.video_b64);
+        const byteArray = new Uint8Array(videoBytes.length);
+        for (let i = 0; i < videoBytes.length; i++) byteArray[i] = videoBytes.charCodeAt(i);
+        const blob = new Blob([byteArray], { type: "video/mp4" });
+        const videoUrl = URL.createObjectURL(blob);
+        videoPlayer.src = videoUrl;
+        downloadLink.href = videoUrl;
+        downloadLink.download = `ad_${script.product_name.replace(/\s+/g, "_").toLowerCase()}.mp4`;
+
+        // Meta panel
+        const m = data.meta;
+        metaPanel.innerHTML = `
+          <div class="meta-eyebrow">Ad Details</div>
+          🏷️ <strong>${script.product_name}</strong><br>
+          ✨ <em>"${script.tagline}"</em><br>
+          🎞️ ${m.total_frames} frames<br>
+          ⏱️ ~${m.estimated_duration}s<br>
+          🤖 Gemini 2.0 Flash<br>
+          🎨 ${m.tone}
+        `;
+
+        // Script
+        scriptBox.textContent =
+          `PRODUCT: ${script.product_name}\nTAGLINE: ${script.tagline}\n\nVOICEOVER SCRIPT:\n${script.full_script}\n\nFRAMES:\n` +
+          script.frames.map((f, i) => `  [${i + 1}] ${f.headline} — ${f.subtext}`).join("\n");
+
+        // Frame gallery
+        frameGallery.innerHTML = "";
+        data.frame_previews.forEach((b64, i) => {
+          const fig = document.createElement("figure");
+          fig.className = "gallery-item";
+          fig.innerHTML = `
+            <img src="data:image/jpeg;base64,${b64}" alt="Frame ${i + 1}" loading="lazy" />
+            <figcaption>${script.frames[i].title}</figcaption>
+          `;
+          frameGallery.appendChild(fig);
+        });
+
+        resultsSection.style.display = "block";
+        resultsSection.scrollIntoView({ behavior: "smooth" });
+
+      } catch (err) {
+        statusTitle.textContent = "❌ Something went wrong";
+        statusSpinner.style.display = "none";
+        log("Failed: " + err.message);
+        showError(err.message);
+      } finally {
+        generateBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
